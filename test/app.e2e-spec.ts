@@ -22,7 +22,15 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer())
       .get('/')
       .expect(200)
-      .expect('Hello World!');
+      .expect('Content-Type', /html/)
+      .expect((res) => {
+        if (typeof res.text !== 'string') {
+          throw new Error('Resposta sem body (text)');
+        }
+        if (!res.text.includes('GDF')) {
+          throw new Error('Página inicial não contém "GDF"');
+        }
+      });
   });
 
   afterEach(async () => {

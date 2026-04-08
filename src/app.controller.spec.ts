@@ -15,8 +15,10 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return login page html', () => {
+      const html = appController.index();
+      expect(html).toContain('GDF');
+      expect(html).toContain('Login');
     });
   });
 });
