@@ -17,17 +17,18 @@ let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
     }
-    getHello() {
-        return this.appService.getHello();
+    index() {
+        return this.appService.getLoginPageHtml();
     }
 };
 exports.AppController = AppController;
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.Header)('Content-Type', 'text/html; charset=utf-8'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
-], AppController.prototype, "getHello", null);
+], AppController.prototype, "index", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [app_service_1.AppService])

@@ -21,19 +21,28 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
+                envFilePath: ['.env'],
             }),
             typeorm_1.TypeOrmModule.forRootAsync({
                 inject: [config_1.ConfigService],
-                useFactory: (config) => ({
-                    type: 'mariadb',
-                    host: config.get('DB_HOST', 'localhost'),
-                    port: Number(config.get('DB_PORT', '3306')),
-                    username: config.get('DB_USER', 'root'),
-                    password: config.get('DB_PASS', ''),
-                    database: config.get('DB_NAME', 'gdf'),
-                    autoLoadEntities: true,
-                    synchronize: config.get('NODE_ENV') !== 'production',
-                }),
+                useFactory: (config) => {
+                    const portRaw = config.getOrThrow('DB_PORT');
+                    const port = Number(portRaw);
+                    if (!Number.isFinite(port)) {
+                        throw new Error(`DB_PORT inválido: ${portRaw}`);
+                    }
+                    const nodeEnv = config.get('NODE_ENV') ?? 'development';
+                    return {
+                        type: 'mariadb',
+                        host: config.getOrThrow('DB_HOST'),
+                        port,
+                        username: config.getOrThrow('DB_USER'),
+                        password: config.get('DB_PASS') ?? '',
+                        database: config.getOrThrow('DB_NAME'),
+                        autoLoadEntities: true,
+                        synchronize: nodeEnv !== 'production',
+                    };
+                },
             }),
             auth_module_1.AuthModule,
         ],
