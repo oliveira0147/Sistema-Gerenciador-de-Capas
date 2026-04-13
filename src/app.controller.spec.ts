@@ -21,4 +21,11 @@ describe('AppController', () => {
       expect(html).toContain('Login');
     });
   });
+
+  describe('folders', () => {
+    it('should return folders page html', () => {
+      const html = appController.folders();
+      expect(html).toContain('Gerenciar Pastas');
+    });
+  });
 });

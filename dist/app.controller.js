@@ -20,6 +20,9 @@ let AppController = class AppController {
     index() {
         return this.appService.getLoginPageHtml();
     }
+    folders() {
+        return this.appService.getFoldersPageHtml();
+    }
 };
 exports.AppController = AppController;
 __decorate([
@@ -29,6 +32,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
 ], AppController.prototype, "index", null);
+__decorate([
+    (0, common_1.Get)('folders'),
+    (0, common_1.Header)('Content-Type', 'text/html; charset=utf-8'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", String)
+], AppController.prototype, "folders", null);
 exports.AppController = AppController = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [app_service_1.AppService])

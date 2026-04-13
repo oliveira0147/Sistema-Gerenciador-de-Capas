@@ -33,6 +33,21 @@ describe('AppController (e2e)', () => {
       });
   });
 
+  it('/folders (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/folders')
+      .expect(200)
+      .expect('Content-Type', /html/)
+      .expect((res) => {
+        if (typeof res.text !== 'string') {
+          throw new Error('Resposta sem body (text)');
+        }
+        if (!res.text.includes('Gerenciar Pastas')) {
+          throw new Error('Página /folders não contém "Gerenciar Pastas"');
+        }
+      });
+  });
+
   afterEach(async () => {
     await app.close();
   });
