@@ -16,33 +16,17 @@ let AppService = class AppService {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>GDF - Login</title>
-    <style>
-      :root { color-scheme: light; }
-      body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: #0b1220; color: #e5e7eb; }
-      .wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
-      .card { width: 100%; max-width: 420px; background: #111827; border: 1px solid #1f2937; border-radius: 14px; padding: 18px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-      h1 { font-size: 20px; margin: 0 0 8px; }
-      p { margin: 0 0 16px; color: #9ca3af; font-size: 13px; }
-      label { display: block; font-size: 12px; color: #9ca3af; margin-bottom: 6px; }
-      input { width: 100%; box-sizing: border-box; border: 1px solid #374151; background: #0b1220; color: #e5e7eb; border-radius: 10px; padding: 10px 12px; outline: none; }
-      input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.15); }
-      .row { display: grid; gap: 12px; margin-bottom: 14px; }
-      .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-      button { border: 0; border-radius: 10px; padding: 10px 12px; cursor: pointer; font-weight: 600; }
-      button.primary { background: #2563eb; color: white; }
-      button.secondary { background: #111827; color: #e5e7eb; border: 1px solid #374151; }
-      .meta { margin-top: 14px; display: grid; gap: 10px; }
-      .box { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; background: #0b1220; border: 1px solid #1f2937; padding: 10px; border-radius: 10px; white-space: pre-wrap; word-break: break-word; }
-    </style>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/scripts.js" defer></script>
   </head>
-  <body>
-    <div class="wrap">
-      <div class="card">
+  <body data-page="login">
+    <div class="wrap-center">
+      <div class="card narrow">
         <h1>GDF</h1>
         <p>Gerenciador de Fotos (Capas de Cadernos) - Login</p>
 
         <form id="form">
-          <div class="row">
+          <div class="grid">
             <div>
               <label for="email">Email</label>
               <input id="email" name="email" type="email" autocomplete="email" required />
@@ -63,48 +47,110 @@ let AppService = class AppService {
         </div>
       </div>
     </div>
+  </body>
+</html>`;
+    }
+    getFoldersPageHtml() {
+        return `<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GDF - Pastas</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/scripts.js" defer></script>
+  </head>
+  <body data-page="folders">
+    <div class="wrap">
+      <div class="top">
+        <h1>GDF - Gerenciar Pastas</h1>
+        <button class="secondary" id="btnLogout" type="button">Sair</button>
+      </div>
 
-    <script>
-      const out = document.getElementById('out');
-      const email = document.getElementById('email');
-      const password = document.getElementById('password');
-      const btnRegister = document.getElementById('btnRegister');
+      <div class="card">
+        <div class="breadcrumb" id="breadcrumb"></div>
+        <div class="row">
+          <button class="primary icon-btn" id="btnOpenCreateFolder" type="button" title="Nova pasta" aria-label="Nova pasta">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3 6.5C3 5.12 4.12 4 5.5 4H10l2 2h6.5C19.88 6 21 7.12 21 8.5v9C21 18.88 19.88 20 18.5 20h-13C4.12 20 3 18.88 3 17.5v-11Z" stroke="currentColor" stroke-width="1.8" />
+              <path d="M12 11v6M9 14h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </button>
+          <div id="uploadSection">
+            <button class="primary icon-btn" id="btnOpenUpload" type="button" title="Subir imagens" aria-label="Subir imagens">↑</button>
+          </div>
+          <div class="spacer"></div>
+          <div class="search">
+            <input id="fileSearch" type="text" placeholder="Buscar arquivos..." />
+          </div>
+          <button class="secondary" id="btnRefresh" type="button">Atualizar</button>
+        </div>
 
-      const setToken = (token) => localStorage.setItem('gdf_access_token', token);
+        <div class="meta">
+          <div class="box" id="msg"></div>
+          <div class="folder-grid" id="grid"></div>
+          <div class="files-title">Arquivos</div>
+          <div class="file-grid" id="filesGrid"></div>
+        </div>
+      </div>
+    </div>
 
-      const json = async (url, body) => {
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-        const data = await res.json().catch(() => ({}));
-        return { ok: res.ok, status: res.status, data };
-      };
+    <div class="modal-backdrop" id="uploadModal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="uploadTitle">
+        <div class="modal-top">
+          <div class="modal-title" id="uploadTitle">Subir imagens</div>
+          <button class="secondary modal-close" id="btnCloseUpload" type="button" aria-label="Fechar">×</button>
+        </div>
 
-      document.getElementById('form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        out.textContent = 'Entrando...';
-        const r = await json('/auth/login', { email: email.value, password: password.value });
-        if (!r.ok) {
-          out.textContent = 'Erro (' + r.status + '): ' + (r.data.message ?? 'Falha no login');
-          return;
-        }
-        setToken(r.data.accessToken);
-        out.textContent = 'Login efetuado com sucesso.';
-      });
+        <div class="modal-body">
+          <input id="files" type="file" multiple accept="image/*" />
+          <div class="upload-list" id="uploadList"></div>
+        </div>
 
-      btnRegister.addEventListener('click', async () => {
-        out.textContent = 'Cadastrando...';
-        const r = await json('/auth/register', { email: email.value, password: password.value });
-        if (!r.ok) {
-          out.textContent = 'Erro (' + r.status + '): ' + (r.data.message ?? 'Falha no cadastro');
-          return;
-        }
-        setToken(r.data.accessToken);
-        out.textContent = 'Cadastro realizado com sucesso.';
-      });
-    </script>
+        <div class="modal-actions">
+          <button class="secondary" id="btnCancelUpload" type="button">Cancelar</button>
+          <button class="primary" id="btnUpload" type="button">Enviar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="createFolderModal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="createFolderTitle">
+        <div class="modal-top">
+          <div class="modal-title" id="createFolderTitle">Criar pasta</div>
+          <button class="secondary modal-close" id="btnCloseCreateFolder" type="button" aria-label="Fechar">×</button>
+        </div>
+
+        <div class="modal-body">
+          <label for="folderName">Nome da pasta</label>
+          <input id="folderName" type="text" placeholder="Ex: 2026 - Abril" />
+        </div>
+
+        <div class="modal-actions">
+          <button class="secondary" id="btnCancelCreateFolder" type="button">Cancelar</button>
+          <button class="primary" id="btnCreateFolder" type="button">Criar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="deleteFileModal" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="deleteFileTitle">
+        <div class="modal-top">
+          <div class="modal-title" id="deleteFileTitle">Excluir imagem</div>
+          <button class="secondary modal-close" id="btnCloseDeleteFile" type="button" aria-label="Fechar">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="warning-text">Tem certeza que deseja excluir esta imagem?</div>
+          <div class="box" id="deleteFileName"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button class="secondary" id="btnCancelDeleteFile" type="button">Abortar</button>
+          <button class="danger" id="btnConfirmDeleteFile" type="button">Excluir</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>`;
     }

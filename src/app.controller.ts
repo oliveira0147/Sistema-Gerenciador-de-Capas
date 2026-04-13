@@ -10,4 +10,10 @@ export class AppController {
   index(): string {
     return this.appService.getLoginPageHtml();
   }
+
+  @Get('folders')
+  @Header('Content-Type', 'text/html; charset=utf-8')
+  folders(): string {
+    return this.appService.getFoldersPageHtml();
+  }
 }
